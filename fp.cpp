@@ -32,11 +32,11 @@ public:
     }
 };
 
-
 class StoreInventory {
 private:
     std::vector<Item*> items;
     std::vector<std::vector<bool>> adjacencyMatrix;
+    std::vector<std::string> bundleNames;
 
 public:
     void addItem(Item* item) {
@@ -53,42 +53,53 @@ public:
             }
         }
         return -1;
-    }    
+    }
 
-    void addBundle(const std::string& productName1, const std::string& productName2) {
-        int index1 = findIndexByName(productName1);
-        int index2 = findIndexByName(productName2);
+    int findBundleIndex(const std::string& bundleName) const {
+        auto it = std::find(bundleNames.begin(), bundleNames.end(), bundleName);
+        if (it != bundleNames.end()) {
+            return std::distance(bundleNames.begin(), it);
+        }
+        return -1;
+    }
 
-        if (index1 != -1 && index2 != -1) {
-            if (!adjacencyMatrix[index1][index2]) {
-                adjacencyMatrix[index1][index2] = true;
-                std::cout << "Bundle added"  << ".\n";
-            } else {
-                std::cout << "Bundle already exists" << ".\n";
-            }
+    void addBundleAndItems(const std::string& bundleName, const std::string& productName1, const std::string& productName2) {
+        int bundleIndex = findBundleIndex(bundleName);
+        int productIndex1 = findIndexByName(productName1);
+        int productIndex2 = findIndexByName(productName2);
+
+        if (bundleIndex == -1) {
+            bundleNames.push_back(bundleName);
+            bundleIndex = bundleNames.size() - 1;
+        }
+
+        if (productIndex1 != -1 && productIndex2 != -1) {
+            adjacencyMatrix[bundleIndex][productIndex1] = true;
+            adjacencyMatrix[bundleIndex][productIndex2] = true;
+            std::cout << "Bundle and items added successfully.\n";
         } else {
             std::cout << "One or both products not found.\n";
+        }
     }
-}
 
-    void displayBundleItems(const std::string& productName) const {
-        int index = findIndexByName(productName);
-        if (index != -1) {
+    void displayBundleItems(const std::string& bundleName) const {
+        int bundleIndex = findBundleIndex(bundleName);
+        if (bundleIndex != -1) {
             bool foundBundle = false;
-            std::cout << "Products bundled with " << productName << ":\n";
-            for (int j = 0; j < adjacencyMatrix[index].size(); j++) {
-                if (adjacencyMatrix[index][j]) {
+            std::cout << "Products bundled in " << bundleName << ":\n";
+            for (int j = 0; j < adjacencyMatrix.size(); j++) {
+                if (adjacencyMatrix[bundleIndex][j]) {
                     items[j]->display();
                     foundBundle = true;
                 }
             }
-        if (!foundBundle) {
-            std::cout << "No bundled products found for " << productName << ".\n";
-        }
+            if (!foundBundle) {
+                std::cout << "No bundled products found for " << bundleName << ".\n";
+            }
         } else {
-            std::cout << "No product with name " << productName << " found.\n";
+            std::cout << "Bundle not found.\n";
+        }
     }
-}
 
     void displayInventory() const {
         std::cout << "Store Inventory:\n";
@@ -166,12 +177,12 @@ public:
         inventory.deleteProduct(productName);
     }
 
-    void addBundle(const std::string& productName1, const std::string& productName2) {
-        inventory.addBundle(productName1, productName2);
+    void addBundleAndItems(const std::string& bundleName, const std::string& productName1, const std::string& productName2) {
+        inventory.addBundleAndItems(bundleName, productName1, productName2);
     }
 
-    void displayBundleItems(const std::string& productName) const {
-        inventory.displayBundleItems(productName);
+    void displayBundleItems(const std::string& bundleName) const {
+        inventory.displayBundleItems(bundleName);
     }
 };
 
@@ -179,7 +190,7 @@ int main() {
     Store myStore;
 
     int choice;
-    std::string productName, productName1, productName2 ;
+    std::string productName, productName1, productName2, bundleName;
     double price;
 
     do {
@@ -187,7 +198,7 @@ int main() {
                      "1. Add Product\n"
                      "2. Update Product\n"
                      "3. Delete Product\n"
-                     "4. Add Bundle\n"
+                     "4. Add Bundle and Items\n"
                      "5. Display Bundle Items\n"
                      "6. Display Products\n"
                      "7. Exit\n"
@@ -218,17 +229,19 @@ int main() {
                 break;
 
             case 4:
+                std::cout << "Enter bundle name: ";
+                std::cin >> bundleName;
                 std::cout << "Enter product name 1: ";
                 std::cin >> productName1;
                 std::cout << "Enter product name 2: ";
                 std::cin >> productName2;
-                myStore.addBundle(productName1, productName2);
+                myStore.addBundleAndItems(bundleName, productName1, productName2);
                 break;
 
             case 5:
-                std::cout << "Enter product name: ";
-                std::cin >> productName;
-                myStore.displayBundleItems(productName);
+                std::cout << "Enter bundle name: ";
+                std::cin >> bundleName;
+                myStore.displayBundleItems(bundleName);
                 break;
 
             case 6:
