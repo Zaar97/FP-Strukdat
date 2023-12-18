@@ -17,8 +17,18 @@ private:
 public:
     Product(const std::string& n, double p) : name(n), price(p) {}
 
+    // Overriding method
     void display() const override {
         std::cout << "Product: " << name << ", Price: $" << price << std::endl;
+    }
+
+    // Overloading method with different parameter
+    void display(bool showPrice) const {
+        if (showPrice) {
+            std::cout << "Product: " << name << ", Price: $" << price << std::endl;
+        } else {
+            std::cout << "Product: " << name << std::endl;
+        }
     }
 
     // Getter for product name
@@ -209,7 +219,7 @@ int main() {
             case 1:
                 std::cout << "Enter product name: ";
                 std::cin >> productName;
-                std::cout << "Enter product price: $ ";
+                std::cout << "Enter product price: $";
                 std::cin >> price;
                 myStore.addProduct(productName, price);
                 break;
@@ -217,7 +227,7 @@ int main() {
             case 2:
                 std::cout << "Enter product name to update: ";
                 std::cin >> productName;
-                std::cout << "Enter new price: ";
+                std::cout << "Enter new price: $";
                 std::cin >> price;
                 myStore.updateProduct(productName, price);
                 break;
